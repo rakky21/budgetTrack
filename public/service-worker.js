@@ -2,6 +2,7 @@ const APP_PREFIX = 'budgetTrack-';
 const VERSION = 'version_01';
 const CACHE_NAME = APP_PREFIX + VERSION
 const FILES_TO_CACHE = [
+  "/",
   "./index.html",
   "./manifest.json",
   "./js/index.js",
@@ -18,7 +19,17 @@ const FILES_TO_CACHE = [
 
 // gives offline functionality & makes manifest work
 
-console.log(self)
+// Cache resources
+self.addEventListener('install', function (e) {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      console.log('installing cache : ' + CACHE_NAME)
+      return cache.addAll(FILES_TO_CACHE)
+    })
+  )
+})
+
+
 // Respond with cached resources
 self.addEventListener('fetch', function (e) {
   console.log('fetch request : ' + e.request.url)
@@ -29,7 +40,7 @@ self.addEventListener('fetch', function (e) {
         return request
       } else {       // if there are no cache, try fetching request
         console.log('file is not cached, fetching : ' + e.request.url)
-        return fetch(e.request)
+        return  fetch(e.request)
       }
 
       // You can omit if/else for console.log & put one line below like this too.
@@ -38,15 +49,6 @@ self.addEventListener('fetch', function (e) {
   )
 })
 
-// Cache resources
-self.addEventListener('install', function (e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      console.log('installing cache : ' + CACHE_NAME)
-      return cache.addAll(FILES_TO_CACHE)
-    })
-  )
-})
 
 // Delete outdated caches
 self.addEventListener('activate', function (e) {
